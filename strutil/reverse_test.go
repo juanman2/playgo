@@ -1,7 +1,6 @@
-package main
+package strutil
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -20,8 +19,6 @@ func TestReverse(t *testing.T) {
 	for _, tt := range tests {
 		if got := Reverse(tt.in); got != tt.out {
 			t.Errorf("Reverse(%v) want %v got %v", tt.in, tt.out, got)
-		} else {
-			fmt.Printf("Reverse(%v) got %v", tt.in, got)
 		}
 	}
 }
