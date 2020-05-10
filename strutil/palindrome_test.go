@@ -2,8 +2,7 @@
 
 package strutil
 
-import 	"testing"
-
+import "testing"
 
 func TestIsPalindrome(t *testing.T) {
 	tests := []struct {
@@ -25,7 +24,7 @@ func TestIsPalindrome(t *testing.T) {
 
 func TestValidPalindrome(t *testing.T) {
 	tests := []struct {
-		in string
+		in  string
 		out string
 	}{
 		{"hello", ""},
@@ -39,14 +38,36 @@ func TestValidPalindrome(t *testing.T) {
 				tt.in, tt.out, got)
 		}
 	}
-	
+
+}
+
+func TestCouldBePalindrome(t *testing.T) {
+	tests := []struct {
+		in  string
+		out bool
+	}{
+		{"hello", false},
+		{"abbac", true},
+		{"papa", true},
+		{"123456789009876542", false},
+		{"papaxapap", true},
+		{"xpapaxapap", true},
+		{"papaxapapx", true},
+	}
+
+	for _, tt := range tests {
+		if got := CouldBePalindrome(tt.in); got != tt.out {
+			t.Errorf("CouldBePalindrome(%v) want %v got %v",
+				tt.in, tt.out, got)
+		}
+	}
 }
 
 func TestTrimIth(t *testing.T) {
 
 	tests := []struct {
-		in string
-		i int 
+		in  string
+		i   int
 		out string
 	}{
 		{"hello", 3, "helo"},
@@ -59,7 +80,5 @@ func TestTrimIth(t *testing.T) {
 			t.Errorf("TrimIth(%v) want %v got %v",
 				tt.in, tt.out, got)
 		}
-	}	
+	}
 }
-
-
