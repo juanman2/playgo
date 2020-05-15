@@ -2,8 +2,6 @@ package playgo
 
 import (
 	"fmt"
-	"math"
-	"strings"
 )
 
 // TreeNode is the definition for a binary tree type
@@ -15,6 +13,10 @@ type TreeNode struct {
 
 // TreeHeight returns the maximum height of the btree
 func TreeHeight(r *TreeNode) int {
+	if r == nil {
+		return 0
+	}
+
 	hl, hr := 0, 0
 	if r.Left != nil {
 		hl = TreeHeight(r.Left)
@@ -30,23 +32,56 @@ func TreeHeight(r *TreeNode) int {
 	return hr + 1
 }
 
+// IsBalanced returns true if the difference between the left and right
+// subtrees of any node in the tree is less than one.
+func IsBalanced(root *TreeNode) bool {
+	bal, _ := isBalancedTree(root)
+	return bal
+}
+
+// IsBalanced returns true if the difference between the left and right
+// subtrees of any node in the tree is less than one. It returns
+// the height of the tree to aid computation
+func isBalancedTree(root *TreeNode) (bool, int) {
+	if root == nil {
+		return true, 0
+	}
+	rb, rh := isBalancedTree(root.Right)
+	lb, lh := isBalancedTree(root.Left)
+	if rb == false || lb == false {
+		return false, 0
+	}
+
+	delta := lh - rh
+	if delta < -1 || delta > 1 {
+		return false, 0
+	}
+
+	height := lh
+	if rh > height {
+		height = rh
+	}
+
+	return true, height + 1
+}
+
 func printTreeLine(n *TreeNode, l, level int, line *[]string) {
 
 	if l == level {
-		*line = append(*line, fmt.Sprintf("%d ", n.Val))
+		if n == nil {
+			*line = append(*line, "- ")
+		} else {
+			*line = append(*line, fmt.Sprintf("%d ", n.Val))
+		}
 	}
 
 	if l < level {
-		if n.Left != nil {
+		if n == nil {
+			*line = append(*line, "- ")
+			*line = append(*line, "- ")
+		} else {
 			printTreeLine(n.Left, l+1, level, line)
-		} else {
-			*line = append(*line, "- ")
-		}
-
-		if n.Right != nil {
 			printTreeLine(n.Right, l+1, level, line)
-		} else {
-			*line = append(*line, "- ")
 		}
 	}
 }
@@ -55,19 +90,31 @@ func printTreeLine(n *TreeNode, l, level int, line *[]string) {
 func PrintTree(n *TreeNode) {
 
 	h := TreeHeight(n)
-	if h > 5 {
-		fmt.Printf("Warning: this function will print at most 6 levels")
+	if h > 4 {
+		fmt.Printf("Warning: this function will print at most 4 levels")
 	}
 
-	for l := 0; l < h && l < 6; l = l + 1 {
-		line := make([]string, 2>>l)
+	for l := 0; l < h && l < 4; l = l + 1 {
+		line := make([]string, 0)
 		printTreeLine(n, 0, l, &line)
-		width := int(math.Exp2(float64(h)))
-		if l%2 == 0 {
-			width = width - 1
+		switch l {
+		case 0:
+			fmt.Printf("       %s\n", line[0])
+		case 1:
+			fmt.Printf("      / \\  \n")
+			fmt.Printf("     %s  %s \n", line[0], line[1])
+		case 2:
+			fmt.Printf("   / \\   / \\\n")
+			fmt.Printf("  %s  %s %s %s\n",
+				line[0], line[1], line[2], line[3])
+		case 3:
+			fmt.Printf(" /\\  /\\  /\\  /\\\n")
+			fmt.Printf("%s%s%s%s %s%s%s%s\n",
+				line[0], line[1], line[2], line[3],
+				line[4], line[5], line[6], line[7])
 		}
-		fmt.Printf("%*s\n", width, strings.Join(line, ""))
 	}
+	fmt.Println()
 
 }
 
