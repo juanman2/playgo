@@ -33,10 +33,6 @@ const (
 	errorState       = iota
 )
 
-func isMatch(s string, p string) bool {
-	return IsRegexpMatch(s, p)
-}
-
 // DotMatch advances the regexp if it matches any single character.  If s
 // is too short, it returns error
 func DotMatch(s string, i int) (int, int) {
