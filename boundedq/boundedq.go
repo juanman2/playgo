@@ -23,6 +23,11 @@ type BoundedBlockingQueue struct {
 	tail     int
 	c        *sync.Cond
 	m        sync.Locker
+	// trace
+	t   int
+	dqt []int
+	e   int
+	eqt []int
 }
 
 // NewBoundedBlockingQueue implements a constructor for the BBQ.
@@ -37,6 +42,13 @@ func NewBoundedBlockingQueue(capacity int) *BoundedBlockingQueue {
 	bbq.q = make([]int, capacity)
 	bbq.m = new(sync.Mutex)
 	bbq.c = sync.NewCond(bbq.m)
+
+	// trace
+	bbq.dqt = make([]int, 20)
+	bbq.eqt = make([]int, 20)
+	bbq.t = 0
+	bbq.e = 0
+
 	return bbq
 }
 
@@ -64,6 +76,11 @@ func (q *BoundedBlockingQueue) Enqueue(element int) {
 	}
 	q.size = q.size + 1
 	q.c.Broadcast()
+
+	// trace
+	q.eqt[q.e] = element
+	q.e = q.e + 1
+
 }
 
 // Dequeue implements the pop part of the BBQ interface.
@@ -82,10 +99,30 @@ func (q *BoundedBlockingQueue) Dequeue() int {
 	}
 	q.size = q.size - 1
 	q.c.Broadcast()
+
+	// trace
+	q.dqt[q.t] = element
+	q.t = q.t + 1
+
 	return element
+}
+
+// Drain returns when the size of the queue is 0
+func (q *BoundedBlockingQueue) Drain() {
+	defer q.m.Unlock()
+	q.m.Lock()
+
+	for q.size != 0 {
+		q.c.Wait()
+	}
+	return
 }
 
 // Size returns the number of elements waiting in the BBQ.
 func (q *BoundedBlockingQueue) Size() int {
+
+	fmt.Printf("Q: %v\n", q)
+	fmt.Printf("ENQ: %v\n", q.eqt[0:q.e])
+	fmt.Printf("DEQ: %v\n", q.dqt[0:q.t])
 	return q.size
 }
