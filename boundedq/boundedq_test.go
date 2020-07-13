@@ -26,15 +26,15 @@ func TestBBQSimple(t *testing.T) {
 		{
 			producer: 3,
 			consumer: 4,
-			ops:      []string{"BoundedBlockingQueue", "enqueue", "enqueue", "enqueue", "dequeue", "dequeue", "dequeue"},
-			args:     []int{3, 1, 0, 2, -1, -1, -1},
+			ops:      []string{"BoundedBlockingQueue", "enqueue", "enqueue", "enqueue", "dequeue", "dequeue", "dequeue", "enqueue"},
+			args:     []int{3, 1, 0, 2, -1, -1, -1, 3},
 			out: [][]int{
-				{1, 0, 2, 0},
-				{1, 2, 0, 0},
-				{0, 1, 2, 0},
-				{0, 2, 1, 0},
-				{2, 0, 1, 0},
-				{2, 1, 0, 0},
+				{1, 0, 2, 1},
+				{1, 2, 0, 1},
+				{0, 1, 2, 1},
+				{0, 2, 1, 1},
+				{2, 0, 1, 1},
+				{2, 1, 0, 1},
 			},
 		},
 	}
@@ -47,11 +47,11 @@ func TestBBQSimple(t *testing.T) {
 		// make the queue
 		bbq := NewBoundedBlockingQueue(tt.args[0])
 
-		// make a channel to get the output back from the threads
-		ci := make(chan int, tt.consumer)
-		cc := make(chan int, tt.consumer)
-		cp := make(chan int, tt.producer)
-		ct := make(chan int, tt.producer)
+		// make a channels to communicate with go routines
+		ci := make(chan int, bbq.Capacity) // return dequeued data
+		cc := make(chan int, tt.consumer)  // signal consumer threads to dequeue
+		cp := make(chan int, bbq.Capacity) // Signal producer threads to enqueue
+		ct := make(chan int, tt.producer)  // terminated threads signal
 
 		// start the producer threads
 		for i := 0; i < tt.producer; i = i + 1 {
@@ -75,26 +75,29 @@ func TestBBQSimple(t *testing.T) {
 			}()
 		}
 
+		// receive the dequeued integers from the ci channel, or timeout
+		got := make([]int, len(tt.out[0]))
+
+		// Run the receiver in parallel so that we don't block the whole engine
+		go func() {
+			for i := 0; i < len(got)-1; i = i + 1 {
+				select {
+				case e := <-ci:
+					got[i] = e
+				case <-time.After(5 * time.Second):
+					fmt.Printf("Timing out: len=%d got=%d\n",
+						len(got)-1, i)
+					panic("timed out")
+				}
+			}
+		}()
+
 		for i, op := range tt.ops {
 			switch op {
 			case "enqueue":
 				cp <- tt.args[i]
 			case "dequeue":
 				cc <- 1
-			}
-		}
-
-		// receive the dequeued integers from the ci channel, or timeout
-		got := make([]int, len(tt.out[0]))
-
-		for i := 0; i < len(got)-1; i = i + 1 {
-			select {
-			case e := <-ci:
-				got[i] = e
-			case <-time.After(5 * time.Second):
-				fmt.Printf("Timing out: len=%d got=%d\n",
-					len(got)-1, i)
-				panic("timed out")
 			}
 		}
 
@@ -117,7 +120,7 @@ func TestBBQSimple(t *testing.T) {
 
 		// now get the size
 		got[len(got)-1] = bbq.Size()
-		fmt.Printf("Size of %v is %d got:%v\n", bbq, bbq.Size(), got)
+		fmt.Printf("Result %v got:%v\n", bbq, got)
 
 		// Verify what we got.
 		// The function below matches against all possible outcomes.
