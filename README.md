@@ -1,27 +1,28 @@
-## PlayGo
+# PlayGo
 PlayGo is Sandbox for experimenting with Go, Emacs, and refreshing skills.  It was created to reconnect with Go after spending a year and a half sailing around the world. 
 
-# palindrome
+## palindrome
 experimenting with strings
 
-# regexp
+## regexp
 A DP programming excersize
 
-# tree
-structures
+## tree
+Various tree structures questions
 
-# boundedq
+## boundedq
 concurrency
 
-# Critical Path
-A pair of solutions to critical path network detection, one uses Tarjan's algorithm
+## Critical Path
+A pair of solutions to a very HARD critical path network detection, posed in Leetcode.  One uses Tarjan's algorithm.  
+https://leetcode.com/problems/critical-connections-in-a-network/
 
-# LRU
+## LRU
 An LRU cache implementation
 
-# attendance
+## attendance
 Answers a common attendance interview question.  At most to late's in a row are allowed, at most one Absence
 
-# Simple Checksum
-Ansers a Leet code question on for a simple addition based cksum
+## Simple Checksum
+Answers a Leet code question on for a simple addition based cksum
 
