@@ -1,5 +1,5 @@
 # PlayGo
-PlayGo is Sandbox for experimenting with Go, Emacs, and refreshing skills.  It was created to reconnect with Go after spending a year and a half sailing around the world. 
+PlayGo is Sandbox for experimenting with Go, Emacs, and refreshing skills.  
 
 ## palindrome
 experimenting with strings
