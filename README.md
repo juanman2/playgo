@@ -1,5 +1,5 @@
 # PlayGo
-PlayGo is Sandbox for experimenting with Go, Emacs, and refreshing skills.  
+PlayGo is Sandbox for experimenting with Go, Emacs, and refreshing skills.  Most of the problems solved here were taken from leetcode.
 
 ## palindrome
 experimenting with strings
